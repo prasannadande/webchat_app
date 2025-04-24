@@ -3,3 +3,5 @@ flask-socketio
 eventlet 
 Flask-Session 
 Flask-SQLAlchemy 
+flask_socketio 
+eventlet 
