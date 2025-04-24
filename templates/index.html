@@ -6,52 +6,46 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
 </head>
 <body>
-    <h2>🌐 Web Chat</h2>
+    <h2>🌐 Web Chat - Welcome {{ username }}!</h2>
 
-    <div id="loginBox">
-        <input type="text" id="nickname" placeholder="Enter nickname" />
-        <button onclick="joinChat()">Join Chat</button>
-    </div>
-
-    <div id="chatBox" style="display:none;">
+    <div id="chatBox">
         <ul id="messages"></ul>
         <input id="myMessage" autocomplete="off" placeholder="Type a message..." />
         <button onclick="sendMessage()">Send</button>
+        <br><br>
+        <a href="/logout">Logout</a>
     </div>
 
     <script>
         const socket = io();
-        let user = "";
+        const user = "{{ username }}";
 
-        function joinChat() {
-            user = document.getElementById("nickname").value;
-            if (user) {
-                document.getElementById("loginBox").style.display = "none";
-                document.getElementById("chatBox").style.display = "block";
-                socket.send(`${user} joined the chat`);
-            }
-
-            fetch('/history')
-                .then(res => res.json())
-                .then(data => {
-                    data.messages.forEach(msg => {
-                        const li = document.createElement("li");
-                        li.textContent = msg;
-                        document.getElementById("messages").appendChild(li);
-                    });
+        // Load chat history
+        fetch('/history')
+            .then(res => res.json())
+            .then(data => {
+                data.messages.forEach(msg => {
+                    const li = document.createElement("li");
+                    li.textContent = msg;
+                    document.getElementById("messages").appendChild(li);
                 });
-        }
+            });
 
+        // Display incoming messages
         socket.on('message', function(msg) {
             const li = document.createElement("li");
             li.textContent = msg;
             document.getElementById("messages").appendChild(li);
         });
 
+        // Send a message
         function sendMessage() {
             const input = document.getElementById("myMessage");
-            socket.send(`${user}: ${input.value}`);
-            input.value = "";
+            const text = input.value.trim();
+            if (text !== "") {
+                socket.send(`${user}: ${text}`);
+                input.value = "";
+            }
         }
     </script>
 </body>
