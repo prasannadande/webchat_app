@@ -8,19 +8,30 @@
 <body>
     <h2>🌐 Web Chat - Welcome {{ username }}!</h2>
 
-    <div id="chatBox">
-        <ul id="messages"></ul>
-        <input id="myMessage" autocomplete="off" placeholder="Type a message..." />
-        <button onclick="sendMessage()">Send</button>
-        <br><br>
-        <a href="/logout">Logout</a>
-    </div>
+    <form>
+        <label for="recipient">Send to:</label>
+        <select id="recipient">
+            <option value="">Public (All)</option>
+            {% for user in users %}
+                {% if user != username %}
+                    <option value="{{ user }}">{{ user }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+    </form>
+
+    <ul id="messages"></ul>
+    <input id="myMessage" autocomplete="off" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send</button>
+
+    <br><br>
+    <a href="/logout">Logout</a>
 
     <script>
         const socket = io();
         const user = "{{ username }}";
 
-        // Load chat history
+        // Load previous chat history
         fetch('/history')
             .then(res => res.json())
             .then(data => {
@@ -31,21 +42,21 @@
                 });
             });
 
-        // Display incoming messages
         socket.on('message', function(msg) {
             const li = document.createElement("li");
             li.textContent = msg;
             document.getElementById("messages").appendChild(li);
         });
 
-        // Send a message
         function sendMessage() {
             const input = document.getElementById("myMessage");
-            const text = input.value.trim();
-            if (text !== "") {
-                socket.send(`${user}: ${text}`);
-                input.value = "";
-            }
+            const recipient = document.getElementById("recipient").value;
+            const messageData = {
+                content: input.value.trim(),
+                recipient: recipient
+            };
+            socket.emit('private_message', messageData);
+            input.value = "";
         }
     </script>
 </body>
