@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web Chat</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <h2>🌐 Web Chat</h2>
+
+    <div id="loginBox">
+        <input type="text" id="nickname" placeholder="Enter nickname" />
+        <button onclick="joinChat()">Join Chat</button>
+    </div>
+
+    <div id="chatBox" style="display:none;">
+        <ul id="messages"></ul>
+        <input id="myMessage" autocomplete="off" placeholder="Type a message..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        const socket = io();
+        let user = "";
+
+        function joinChat() {
+            user = document.getElementById("nickname").value;
+            if (user) {
+                document.getElementById("loginBox").style.display = "none";
+                document.getElementById("chatBox").style.display = "block";
+                socket.send(`${user} joined the chat`);
+            }
+
+            fetch('/history')
+                .then(res => res.json())
+                .then(data => {
+                    data.messages.forEach(msg => {
+                        const li = document.createElement("li");
+                        li.textContent = msg;
+                        document.getElementById("messages").appendChild(li);
+                    });
+                });
+        }
+
+        socket.on('message', function(msg) {
+            const li = document.createElement("li");
+            li.textContent = msg;
+            document.getElementById("messages").appendChild(li);
+        });
+
+        function sendMessage() {
+            const input = document.getElementById("myMessage");
+            socket.send(`${user}: ${input.value}`);
+            input.value = "";
+        }
+    </script>
+</body>
+</html>

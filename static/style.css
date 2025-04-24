@@ -1,0 +1,22 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    text-align: center;
+    padding: 20px;
+}
+
+#messages {
+    list-style-type: none;
+    height: 300px;
+    overflow-y: scroll;
+    margin: 10px auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+    width: 80%;
+    background: white;
+}
+
+#myMessage, #nickname {
+    padding: 10px;
+    width: 300px;
+}
